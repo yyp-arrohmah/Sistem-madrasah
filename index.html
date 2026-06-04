@@ -97,6 +97,13 @@
         <i class="fa-solid fa-spinner fa-spin mr-2"></i> Menyimpan ke Google Drive...
     </div>
 
+    <!-- Indikator Koneksi Cloud (Kanan Atas) -->
+    <div id="cloud-connection-status" class="fixed top-20 right-4 lg:top-6 lg:right-8 bg-white/90 backdrop-blur-sm px-3.5 py-1.5 rounded-full shadow-sm border border-gray-100 flex items-center gap-2 z-[8000] hidden transition-all duration-300 pointer-events-none">
+        <i class="fa-solid fa-cloud text-green-500 text-lg"></i>
+        <span class="text-sm font-bold text-gray-600 tracking-wide">Tersinkronisasi</span>
+        <i class="fa-solid fa-cloud text-gray-200 text-[10px]"></i>
+    </div>
+
     <!-- Area Cetak -->
     <div id="print-area" class="hidden"></div>
 
@@ -106,7 +113,7 @@
             <div id="alert-icon" class="text-5xl mb-4 text-blue-500"><i class="fa-solid fa-circle-info"></i></div>
             <h3 id="alert-title" class="text-xl font-bold text-gray-800 mb-2"></h3>
             <p id="alert-message" class="text-gray-500 text-sm mb-6 whitespace-pre-line"></p>
-            <button onclick="window.closeAlert()" class="bg-gray-800 text-white font-medium px-6 py-2.5 rounded-xl w-full hover:bg-gray-700">Mengerti</button>
+            <button id="alert-close-btn" class="bg-gray-800 text-white font-medium px-6 py-2.5 rounded-xl w-full hover:bg-gray-700">Mengerti</button>
         </div>
     </div>
 
@@ -260,6 +267,7 @@
                             </button>
                             <div id="submenu-khidmah" class="flex flex-col gap-1 mt-1 pl-4 border-l-2 border-purple-200 ml-2">
                                 <button id="nav-btn-guru" onclick="window.switchTab('guru', this)" class="nav-btn w-full flex items-center gap-3 px-4 py-2 rounded-xl text-left text-sm font-medium text-gray-500 hover:bg-purple-50 transition-colors"><i class="fa-solid fa-chalkboard-user w-5"></i> Data Guru</button>
+                                <button id="nav-btn-absen-guru" onclick="window.switchTab('absen-guru', this)" class="nav-btn w-full flex items-center gap-3 px-4 py-2 rounded-xl text-left text-sm font-medium text-gray-500 hover:bg-purple-50 transition-colors"><i class="fa-solid fa-calendar-check w-5"></i> Absensi Guru</button>
                                 <button id="nav-btn-idcard" onclick="window.switchTab('idcard', this)" class="nav-btn w-full flex items-center gap-3 px-4 py-2 rounded-xl text-left text-sm font-medium text-gray-500 hover:bg-purple-50 transition-colors"><i class="fa-solid fa-id-badge w-5"></i> Cetak Kartu ID</button>
                             </div>
                         </div>
@@ -271,6 +279,7 @@
                             </button>
                             <div id="submenu-akademik" class="flex flex-col gap-1 mt-1 pl-4 border-l-2 border-gray-200 ml-2">
                                 <button id="nav-btn-siswa" onclick="window.switchTab('siswa', this)" class="nav-btn w-full flex items-center gap-3 px-4 py-2 rounded-xl text-left text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors"><i class="fa-solid fa-users w-5"></i> Data Siswa</button>
+                                <button id="nav-btn-absen-siswa" onclick="window.switchTab('absen-siswa', this)" class="nav-btn w-full flex items-center gap-3 px-4 py-2 rounded-xl text-left text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors"><i class="fa-solid fa-clipboard-user w-5"></i> Absensi Murid</button>
                                 <button id="nav-btn-mapel" onclick="window.switchTab('mapel', this)" class="nav-btn w-full flex items-center gap-3 px-4 py-2 rounded-xl text-left text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors"><i class="fa-solid fa-book-open w-5"></i> Mata Pelajaran</button>
                                 <button id="nav-btn-nilai" onclick="window.switchTab('nilai', this)" class="nav-btn w-full flex items-center gap-3 px-4 py-2 rounded-xl text-left text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors"><i class="fa-solid fa-pen-to-square w-5"></i> Input Nilai</button>
                                 <button id="nav-btn-rapor" onclick="window.switchTab('rapor', this)" class="nav-btn w-full flex items-center gap-3 px-4 py-2 rounded-xl text-left text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors"><i class="fa-solid fa-print w-5"></i> Cetak Rapor</button>
@@ -464,6 +473,37 @@
                     </div>
                 </div>
  
+                <!-- ABSENSI GURU -->
+                <div id="tab-absen-guru" class="tab-content max-w-6xl mx-auto scroll-mt-6">
+                    <div class="mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-800">Absensi Guru</h2>
+                            <p class="text-gray-500 text-sm">Catat kehadiran harian Sahabat Khidmah.</p>
+                        </div>
+                        <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border border-gray-200 shadow-sm">
+                            <label class="text-sm font-bold text-gray-700"><i class="fa-solid fa-calendar-day mr-1 text-purple-600"></i> Tanggal:</label>
+                            <input type="date" id="tgl-absen-guru" class="outline-none text-sm font-medium bg-transparent cursor-pointer text-gray-700" onchange="window.renderAbsenGuru()">
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="overflow-x-auto pb-4">
+                            <table class="w-full text-sm text-left">
+                                <thead class="bg-purple-50 text-xs text-purple-900 font-bold uppercase border-b border-purple-100">
+                                    <tr>
+                                        <th class="px-4 py-3.5 w-16 text-center">No</th>
+                                        <th class="px-4 py-3.5 min-w-[200px]">Nama Guru & Jabatan</th>
+                                        <th class="px-4 py-3.5 text-center min-w-[300px]">Keterangan Kehadiran</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-absen-guru" class="divide-y divide-gray-100 bg-white"></tbody>
+                            </table>
+                        </div>
+                        <div class="p-4 border-t border-gray-100 bg-gray-50 flex justify-end">
+                            <button onclick="window.simpanAbsenGuru()" class="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white px-6 py-2.5 rounded-xl font-bold flex items-center justify-center gap-2 shadow-md transition-colors"><i class="fa-solid fa-save"></i> Simpan Absensi Guru</button>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- DATA SISWA -->
                 <div id="tab-siswa" class="tab-content max-w-6xl mx-auto scroll-mt-6">
                     <div class="mb-8"><h2 class="text-2xl font-bold text-gray-800">Manajemen Siswa</h2></div>
@@ -514,6 +554,53 @@
                                     </table>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ABSENSI SISWA -->
+                <div id="tab-absen-siswa" class="tab-content max-w-6xl mx-auto scroll-mt-6">
+                    <div class="mb-6 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-800">Absensi Murid</h2>
+                            <p class="text-gray-500 text-sm">Catat kehadiran harian murid berdasarkan kelas.</p>
+                        </div>
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border border-gray-200 shadow-sm">
+                                <label class="text-sm font-bold text-gray-700"><i class="fa-solid fa-users-rectangle mr-1 text-blue-600"></i> Kelas:</label>
+                                <select id="filter-kelas-absen" class="outline-none text-sm font-bold text-gray-700 bg-transparent cursor-pointer min-w-[100px]" onchange="window.renderAbsenSiswa()">
+                                    <option value="">-- Pilih Kelas --</option>
+                                    <option value="SATU">SATU</option>
+                                    <option value="DUA">DUA</option>
+                                    <option value="TIGA">TIGA</option>
+                                    <option value="EMPAT">EMPAT</option>
+                                    <option value="LIMA">LIMA</option>
+                                    <option value="ENAM">ENAM</option>
+                                </select>
+                            </div>
+                            <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border border-gray-200 shadow-sm">
+                                <label class="text-sm font-bold text-gray-700"><i class="fa-solid fa-calendar-day mr-1 text-blue-600"></i> Tanggal:</label>
+                                <input type="date" id="tgl-absen-siswa" class="outline-none text-sm font-medium bg-transparent cursor-pointer text-gray-700" onchange="window.renderAbsenSiswa()">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="overflow-x-auto pb-4">
+                            <table class="w-full text-sm text-left">
+                                <thead class="bg-blue-50 text-xs text-blue-900 font-bold uppercase border-b border-blue-100">
+                                    <tr>
+                                        <th class="px-4 py-3.5 w-16 text-center">No</th>
+                                        <th class="px-4 py-3.5 min-w-[200px]">Nama Murid & NIS</th>
+                                        <th class="px-4 py-3.5 text-center min-w-[300px]">Keterangan Kehadiran</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-absen-siswa" class="divide-y divide-gray-100 bg-white">
+                                    <tr><td colspan="3" class="px-4 py-8 text-center text-gray-500">Pilih kelas terlebih dahulu.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="p-4 border-t border-gray-100 bg-gray-50 flex justify-end">
+                            <button onclick="window.simpanAbsenSiswa()" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-bold flex items-center justify-center gap-2 shadow-md transition-colors"><i class="fa-solid fa-save"></i> Simpan Absensi Murid</button>
                         </div>
                     </div>
                 </div>
@@ -1084,7 +1171,7 @@
 
         // State Global Aplikasi
         window.appState = { 
-            guru: [], siswa: [], mapel: [], nilai: [], tabungan: [], spp: [], atk: [], penjualan: [],
+            guru: [], siswa: [], mapel: [], nilai: [], tabungan: [], spp: [], atk: [], penjualan: [], absensi_guru: [], absensi_siswa: [],
             pengaturan: { 
                 struk_judul: 'MADRASAH AL-KHOIROT', struk_alamat: 'Jl. Pendidikan No.1', struk_ucapan: '*** Terima Kasih ***',
                 admin_user: 'admin', admin_pass: '12345', spp_nominal: '', kop_rapor: '', operators: []
@@ -1120,10 +1207,15 @@
         const initCloudDatabase = async () => {
             const loader = document.getElementById('startup-loader');
             const syncBadge = document.getElementById('cloud-sync-status');
+            const connStatus = document.getElementById('cloud-connection-status');
 
             if (SCRIPT_URL === 'https://script.google.com/macros/s/AKfyc.../exec') {
                 loader.classList.replace('flex', 'hidden');
                 console.warn("Jalankan mode offline. Harap masukkan SCRIPT_URL Google Drive.");
+                if(connStatus) {
+                    connStatus.innerHTML = '<i class="fa-solid fa-cloud-slash text-red-500 text-lg"></i><span class="text-sm font-bold text-gray-600 tracking-wide">Mode Offline</span>';
+                    connStatus.classList.remove('hidden');
+                }
                 window.updateAllViews();
                 return;
             }
@@ -1139,9 +1231,19 @@
 
                 if (result.success && result.data) {
                     window.appState = { ...window.appState, ...result.data };
-                    ['guru', 'siswa', 'mapel', 'nilai', 'tabungan', 'spp', 'atk', 'penjualan'].forEach(k => {
+                    ['guru', 'siswa', 'mapel', 'nilai', 'tabungan', 'spp', 'atk', 'penjualan', 'absensi_guru', 'absensi_siswa'].forEach(k => {
                         if (!window.appState[k]) window.appState[k] = [];
                     });
+                    
+                    if(connStatus) {
+                        connStatus.innerHTML = '<i class="fa-solid fa-cloud text-green-500 text-lg"></i><span class="text-sm font-bold text-gray-600 tracking-wide">Tersinkronisasi</span><i class="fa-solid fa-cloud text-gray-300 text-xs"></i>';
+                        connStatus.classList.remove('hidden');
+                    }
+
+                    // Mulai auto-refresh 30 detik setelah inisialisasi berhasil
+                    if (!window.autoRefreshInterval) {
+                        window.autoRefreshInterval = setInterval(window.autoRefreshData, 30000);
+                    }
                 }
                 
                 loader.classList.replace('flex', 'hidden');
@@ -1178,6 +1280,10 @@
             } catch (error) {
                 console.error("Inisialisasi Cloud Gagal:", error);
                 loader.classList.replace('flex', 'hidden');
+                if(connStatus) {
+                    connStatus.innerHTML = '<i class="fa-solid fa-cloud-bolt text-orange-500 text-lg"></i><span class="text-sm font-bold text-gray-600 tracking-wide">Koneksi Gagal (Lokal)</span>';
+                    connStatus.classList.remove('hidden');
+                }
                 window.showAlert('Koneksi Gagal', 'Tidak dapat mengambil data dari Google Drive. Sistem berjalan dalam mode offline.', 'error');
                 window.updateAllViews();
             }
@@ -1256,8 +1362,10 @@
             toggleNav('menu-group-sistem', ak.pengaturan);
 
             toggleNav('nav-btn-guru', ak.guru);
+            toggleNav('nav-btn-absen-guru', ak.guru);
             toggleNav('nav-btn-idcard', ak.guru); 
             toggleNav('nav-btn-siswa', ak.siswa);
+            toggleNav('nav-btn-absen-siswa', ak.siswa);
             toggleNav('nav-btn-mapel', ak.siswa || ak.guru);
             toggleNav('nav-btn-nilai', ak.siswa || ak.guru);
             toggleNav('nav-btn-rapor', ak.siswa || ak.guru);
@@ -2073,7 +2181,118 @@
                 }
             }
 
-            window.renderOperators(); window.updateStatSPP(); window.renderFormInputNilai(); window.renderFormCetakRapor();
+            window.renderOperators(); window.updateStatSPP(); window.renderFormInputNilai(); window.renderFormCetakRapor(); window.renderAbsenGuru(); window.renderAbsenSiswa();
+        };
+
+        // --- MANAJEMEN ABSENSI ---
+        window.getTodayInputFormat = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
+        
+        window.renderAbsenGuru = () => {
+            const container = document.getElementById('table-absen-guru'); if(!container) return;
+            const tglEl = document.getElementById('tgl-absen-guru');
+            if(!tglEl.value) tglEl.value = window.getTodayInputFormat();
+            const tgl = tglEl.value;
+            
+            if(!window.appState.absensi_guru) window.appState.absensi_guru = [];
+            const recordHariIni = window.appState.absensi_guru.find(a => a.tanggal === tgl) || { data: [] };
+            
+            container.innerHTML = window.appState.guru.map((g, index) => {
+                const prev = recordHariIni.data.find(d => String(d.id_guru) === String(g.id));
+                const stat = prev ? prev.status : 'Hadir';
+                return `<tr class="absen-guru-row border-b border-gray-100 hover:bg-purple-50/30 transition-colors" data-id="${g.id}">
+                    <td class="px-4 py-3 text-center text-gray-500">${index+1}</td>
+                    <td class="px-4 py-3 font-bold text-sm text-gray-800">${g.nama} <br><span class="text-xs font-normal text-gray-500">${g.jabatan}</span></td>
+                    <td class="px-4 py-3 text-center">
+                        <div class="flex flex-wrap gap-2 md:gap-4 justify-center">
+                            <label class="flex items-center gap-1.5 cursor-pointer text-sm font-medium"><input type="radio" name="absen_guru_${g.id}" value="Hadir" class="w-4 h-4 text-green-600" ${stat==='Hadir'?'checked':''}> <span class="text-green-600">Hadir</span></label>
+                            <label class="flex items-center gap-1.5 cursor-pointer text-sm font-medium"><input type="radio" name="absen_guru_${g.id}" value="Izin" class="w-4 h-4 text-blue-600" ${stat==='Izin'?'checked':''}> <span class="text-blue-600">Izin</span></label>
+                            <label class="flex items-center gap-1.5 cursor-pointer text-sm font-medium"><input type="radio" name="absen_guru_${g.id}" value="Sakit" class="w-4 h-4 text-orange-500" ${stat==='Sakit'?'checked':''}> <span class="text-orange-500">Sakit</span></label>
+                            <label class="flex items-center gap-1.5 cursor-pointer text-sm font-medium"><input type="radio" name="absen_guru_${g.id}" value="Alpa" class="w-4 h-4 text-red-600" ${stat==='Alpa'?'checked':''}> <span class="text-red-600">Alpa</span></label>
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
+        };
+
+        window.simpanAbsenGuru = () => {
+            const tgl = document.getElementById('tgl-absen-guru').value;
+            if(!tgl) return window.showAlert('Perhatian', 'Silakan pilih tanggal absensi.', 'error');
+            const rows = document.querySelectorAll('.absen-guru-row');
+            const dataAbsen = [];
+            rows.forEach(r => {
+                const id = r.dataset.id;
+                const statusInput = r.querySelector(`input[name="absen_guru_${id}"]:checked`);
+                if(statusInput) dataAbsen.push({ id_guru: parseInt(id), status: statusInput.value });
+            });
+            
+            if(!window.appState.absensi_guru) window.appState.absensi_guru = [];
+            const idx = window.appState.absensi_guru.findIndex(a => a.tanggal === tgl);
+            if(idx > -1) window.appState.absensi_guru[idx].data = dataAbsen;
+            else window.appState.absensi_guru.push({ tanggal: tgl, data: dataAbsen });
+            
+            window.saveState(); window.showAlert('Berhasil', 'Absensi Guru telah disimpan.', 'success');
+        };
+
+        window.renderAbsenSiswa = () => {
+            const container = document.getElementById('table-absen-siswa'); if(!container) return;
+            const tglEl = document.getElementById('tgl-absen-siswa');
+            if(!tglEl.value) tglEl.value = window.getTodayInputFormat();
+            const tgl = tglEl.value;
+            const kelas = document.getElementById('filter-kelas-absen').value;
+            
+            if(!kelas) { container.innerHTML = '<tr><td colspan="3" class="px-4 py-8 text-center text-gray-500 font-medium">Silakan pilih kelas terlebih dahulu melalui menu filter di atas.</td></tr>'; return; }
+            
+            if(!window.appState.absensi_siswa) window.appState.absensi_siswa = [];
+            const recordHariIni = window.appState.absensi_siswa.find(a => a.tanggal === tgl) || { data: [] };
+            const siswaKelas = window.appState.siswa.filter(s => String(s.kelas).toLowerCase() === String(kelas).toLowerCase());
+            
+            if(siswaKelas.length === 0) { container.innerHTML = '<tr><td colspan="3" class="px-4 py-8 text-center text-gray-500 font-medium"><i class="fa-solid fa-folder-open block text-2xl mb-2 text-gray-300"></i>Belum ada murid yang terdaftar di kelas ini.</td></tr>'; return; }
+
+            container.innerHTML = siswaKelas.map((s, index) => {
+                const prev = recordHariIni.data.find(d => String(d.id_siswa) === String(s.id));
+                const stat = prev ? prev.status : 'Hadir';
+                return `<tr class="absen-siswa-row border-b border-gray-100 hover:bg-blue-50/40 transition-colors" data-id="${s.id}">
+                    <td class="px-4 py-3 text-center text-gray-500">${index+1}</td>
+                    <td class="px-4 py-3 font-bold text-sm text-gray-800">${s.nama} <br><span class="text-xs font-normal text-gray-500">NIS: ${s.nis}</span></td>
+                    <td class="px-4 py-3 text-center">
+                        <div class="flex flex-wrap gap-2 md:gap-4 justify-center">
+                            <label class="flex items-center gap-1 cursor-pointer text-xs md:text-sm font-medium"><input type="radio" name="absen_siswa_${s.id}" value="Hadir" class="w-3.5 h-3.5 md:w-4 md:h-4 text-green-600" ${stat==='Hadir'?'checked':''}> <span class="text-green-600">Hadir</span></label>
+                            <label class="flex items-center gap-1 cursor-pointer text-xs md:text-sm font-medium"><input type="radio" name="absen_siswa_${s.id}" value="Izin" class="w-3.5 h-3.5 md:w-4 md:h-4 text-blue-600" ${stat==='Izin'?'checked':''}> <span class="text-blue-600">Izin</span></label>
+                            <label class="flex items-center gap-1 cursor-pointer text-xs md:text-sm font-medium"><input type="radio" name="absen_siswa_${s.id}" value="Sakit" class="w-3.5 h-3.5 md:w-4 md:h-4 text-orange-500" ${stat==='Sakit'?'checked':''}> <span class="text-orange-500">Sakit</span></label>
+                            <label class="flex items-center gap-1 cursor-pointer text-xs md:text-sm font-medium"><input type="radio" name="absen_siswa_${s.id}" value="Alpa" class="w-3.5 h-3.5 md:w-4 md:h-4 text-red-600" ${stat==='Alpa'?'checked':''}> <span class="text-red-600">Alpa</span></label>
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
+        };
+
+        window.simpanAbsenSiswa = () => {
+            const tgl = document.getElementById('tgl-absen-siswa').value;
+            const kelas = document.getElementById('filter-kelas-absen').value;
+            if(!tgl || !kelas) return window.showAlert('Perhatian', 'Pastikan Anda telah memilih tanggal dan filter kelas.', 'error');
+            
+            const rows = document.querySelectorAll('.absen-siswa-row');
+            if(rows.length === 0) return;
+            
+            if(!window.appState.absensi_siswa) window.appState.absensi_siswa = [];
+            let record = window.appState.absensi_siswa.find(a => a.tanggal === tgl);
+            if(!record) {
+                record = { tanggal: tgl, data: [] };
+                window.appState.absensi_siswa.push(record);
+            }
+            
+            rows.forEach(r => {
+                const id = parseInt(r.dataset.id);
+                const statusInput = r.querySelector(`input[name="absen_siswa_${id}"]:checked`);
+                if(statusInput) {
+                    const status = statusInput.value;
+                    const dIdx = record.data.findIndex(d => d.id_siswa === id);
+                    if(dIdx > -1) record.data[dIdx].status = status;
+                    else record.data.push({ id_siswa: id, status: status });
+                }
+            });
+            
+            window.saveState(); window.showAlert('Berhasil', `Absensi Murid kelas ${kelas} telah disimpan.`, 'success');
         };
 
         // KOPONTREN
