@@ -607,213 +607,87 @@
                     </div>
                 </div>
 
-                        <!-- Kolom Kanan: Preview Kartu ID -->
-                        <div class="flex justify-center w-full max-w-md mx-auto pt-6">
-                            <div id="printable-area" class="id-card">
-                                <div class="id-card-header" id="themeHeader">
-                                </div>
-                                
-                                <div class="id-card-body relative z-10">
-                                    <!-- Foto Profil -->
-                                    <div class="profile-img-container" onclick="window.reopenCropper('idcard')" title="Klik untuk mengunggah / menyesuaikan foto">
-                                        <img id="displayPhoto" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23cbd5e1'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="Foto Profil" class="profile-img">
-                                    </div>
-
-                                    <div class="name-container w-full">
-                                        <h2 id="displayName" class="text-xl font-bold text-gray-800 text-center leading-tight">Nama Lengkap</h2>
-                                        <p id="displayRole" class="text-sm text-gray-600 font-medium mt-1 text-center">Jabatan</p>
-                                    </div>
-                                    
-                                    <div class="mt-4 bg-white/60 backdrop-blur-sm px-4 py-2 rounded-md border border-gray-200 shadow-sm">
-                                        <p id="displayId" class="text-sm font-bold text-gray-800 tracking-widest">ID: XXXXXX</p>
-                                    </div>
-
-                                    <div class="barcode-container mt-auto">
-                                        <svg id="barcode"></svg>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                <!-- TAB CETAK KARTU ID -->
+                <div id="tab-idcard" class="tab-content max-w-6xl mx-auto scroll-mt-6">
+                    <div class="mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800">Cetak Kartu ID (Guru / Karyawan)</h2>
+                        <p class="text-gray-500 text-sm">Pilih guru untuk mengisi data otomatis atau isi manual. Background dapat diubah.</p>
                     </div>
-                </div>
- 
-               <!-- TAB ABSENSI GURU -->
-                <div id="tab-absen-guru" class="tab-content max-w-6xl mx-auto scroll-mt-6">
-                    <div class="mb-6 flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
-                        <div>
-                            <h2 class="text-2xl font-bold text-gray-800">Absensi Guru</h2>
-                            <p class="text-gray-500 text-sm">Catat kehadiran harian Sahabat Khidmah dengan Scanner.</p>
-                        </div>
-                        <div class="flex flex-col sm:flex-row gap-3 items-center">
-                            <div class="flex gap-2 w-full sm:w-auto">
-                                <select id="mode-scan-guru" class="bg-white border border-purple-200 text-purple-700 text-sm font-bold rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-purple-500 shadow-sm cursor-pointer">
-                                    <option value="Hadir">Hadir</option>
-                                    <option value="Izin">Izin</option>
-                                    <option value="Sakit">Sakit</option>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                        <!-- Form Editor -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-5">
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Isi Otomatis dari Data Guru</label>
+                                <select id="select-guru-idcard" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:border-blue-500" onchange="window.autofillIdCard(this.value)">
+                                    <option value="">-- Pilih Nama Guru --</option>
                                 </select>
-                                <form onsubmit="window.prosesAbsenGuruManual(event)" class="flex gap-2 w-full sm:w-auto">
-                                    <div class="relative w-full">
-                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-purple-400"><i class="fa-solid fa-barcode text-xs"></i></div>
-                                        <input type="text" id="input-absen-guru-manual" class="pl-8 pr-3 py-2 bg-white border border-purple-200 rounded-xl text-sm font-bold focus:ring-2 focus:ring-purple-500 outline-none w-full sm:w-44 placeholder:font-normal placeholder:text-xs text-purple-900" placeholder="Ketik NIP / Scan...">
-                                    </div>
-                                    <button type="submit" class="hidden">Scan</button>
-                                </form>
                             </div>
-                            <button type="button" onclick="window.openScanner('absen-guru-tab')" class="w-full sm:w-auto bg-purple-100 hover:bg-purple-200 text-purple-700 px-4 py-2 rounded-xl text-sm font-bold flex items-center justify-center gap-2 border border-purple-200 transition-colors shadow-sm">
-                                <i class="fa-solid fa-camera"></i> Scan Kamera
+                            <div class="border-b border-gray-200"></div>
+                            
+                            <div><label class="block text-sm font-medium mb-1">Nama Lengkap</label><input type="text" id="inputName" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm outline-none" onkeyup="window.updateText('inputName', 'displayName', 'Nama Lengkap')" placeholder="Cth: Ahmad Baihaqi, S.Pd"></div>
+                            <div><label class="block text-sm font-medium mb-1">Jabatan / Status</label><input type="text" id="inputRole" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm outline-none" onkeyup="window.updateText('inputRole', 'displayRole', 'Jabatan')" placeholder="Cth: Guru Fiqih"></div>
+                            <div><label class="block text-sm font-medium mb-1">ID / NIP / Barcode</label><input type="text" id="inputId" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm outline-none" onkeyup="window.updateText('inputId', 'displayId', 'ID: XXXXXX', 'ID: ')" placeholder="Cth: 198201012010"></div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Background Kartu (Opsional)</label>
+                                <input type="file" id="inputBg" accept="image/*" class="w-full p-2 border border-gray-300 rounded-lg text-sm outline-none" onchange="window.changeBackground(event)">
+                            </div>
+                        </div>
+
+                        <!-- Preview & Print -->
+                        <div class="flex flex-col items-center">
+                            <div class="bg-gray-100 p-6 rounded-2xl border border-gray-200 w-full flex justify-center mb-4">
+                                <div id="printable-area" class="id-card">
+                                    <div id="themeHeader" class="id-card-header">
+                                        <div id="displayCompany">MADRASAH AL-KHOIROT</div>
+                                    </div>
+                                    <div class="id-card-body">
+                                        <div class="profile-img-container" onclick="window.reopenCropper('idcard')" title="Klik untuk potong / ganti foto">
+                                            <img id="displayPhoto" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23cbd5e1'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" class="profile-img" alt="Foto">
+                                        </div>
+                                        <div class="name-container">
+                                            <h2 id="displayName">Nama Lengkap</h2>
+                                            <p id="displayRole">Jabatan</p>
+                                        </div>
+                                        <div class="w-full flex justify-center mt-4 border-t border-gray-200">
+                                            <p id="displayId">ID: XXXXXX</p>
+                                        </div>
+                                        <div class="barcode-container">
+                                            <svg id="barcode"></svg>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="window.cetakKartuIDSekarang()" class="w-full max-w-[216px] bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg transition-all">
+                                <i class="fa-solid fa-print"></i> Cetak Kartu
                             </button>
-                            <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border border-gray-200 shadow-sm w-full sm:w-auto">
-                                <label class="text-sm font-bold text-gray-700 whitespace-nowrap"><i class="fa-solid fa-calendar-day mr-1 text-purple-600"></i> Tanggal:</label>
-                                <input type="date" id="tgl-absen-guru" class="outline-none text-sm font-medium bg-transparent cursor-pointer text-gray-700 w-full" onchange="window.renderAbsenGuru()">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                        <div class="overflow-x-auto pb-4">
-                            <table class="w-full text-sm text-left">
-                                <thead class="bg-purple-50 text-xs text-purple-900 font-bold uppercase border-b border-purple-100">
-                                    <tr>
-                                        <th class="px-4 py-3.5 w-16 text-center">No</th>
-                                        <th class="px-4 py-3.5 min-w-[200px]">Nama Guru & Jabatan</th>
-                                        <th class="px-4 py-3.5 text-center min-w-[300px]">Keterangan Kehadiran</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="table-absen-guru" class="divide-y divide-gray-100 bg-white"></tbody>
-                            </table>
-                        </div>
-                        <div class="p-4 border-t border-gray-100 bg-gray-50 flex justify-end">
-                            <button onclick="window.simpanAbsenGuru()" class="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white px-6 py-2.5 rounded-xl font-bold flex items-center justify-center gap-2 shadow-md transition-colors"><i class="fa-solid fa-save"></i> Simpan Absensi Guru</button>
                         </div>
                     </div>
                 </div>
 
-                <!-- JADWAL GURU -->
-                <div id="tab-jadwal-guru" class="tab-content max-w-6xl mx-auto scroll-mt-6">
-                    <div class="mb-6">
-                        <h2 class="text-2xl font-bold text-gray-800">Jadwal Mengajar Guru</h2>
-                        <p class="text-gray-500 text-sm">Atur dan lihat jadwal mengajar Sahabat Khidmah.</p>
-                    </div>
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div class="lg:col-span-1">
-                            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                                <h3 class="font-bold mb-4"><i class="fa-solid fa-calendar-plus text-purple-600 mr-2"></i>Tambah Jadwal</h3>
-                                <form onsubmit="window.simpanJadwalGuru(event)" class="space-y-4">
-                                    <div>
-                                        <label class="block text-sm font-medium mb-1">Pilih Guru</label>
-                                        <select id="jadwal-guru-id" class="w-full border p-2.5 rounded-lg outline-none focus:ring-2 focus:ring-purple-500 bg-white" required>
-                                            <option value="">-- Pilih Guru --</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium mb-1">Hari</label>
-                                        <select id="jadwal-hari" class="w-full border p-2.5 rounded-lg outline-none focus:ring-2 focus:ring-purple-500 bg-white" required>
-                                            <option value="Senin">Senin</option>
-                                            <option value="Selasa">Selasa</option>
-                                            <option value="Rabu">Rabu</option>
-                                            <option value="Kamis">Kamis</option>
-                                            <option value="Jumat">Jumat</option>
-                                            <option value="Sabtu">Sabtu</option>
-                                            <option value="Ahad">Ahad</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium mb-1">Jam Ke / Waktu</label>
-                                        <input type="text" id="jadwal-jam" class="w-full border p-2.5 rounded-lg outline-none focus:ring-2 focus:ring-purple-500" placeholder="Cth: Jam 1 (07:30 - 08:10)" required>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium mb-1">Kelas</label>
-                                        <input type="text" id="jadwal-kelas" class="w-full border p-2.5 rounded-lg outline-none focus:ring-2 focus:ring-purple-500" placeholder="Cth: SATU" required>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium mb-1">Mata Pelajaran</label>
-                                        <input type="text" id="jadwal-mapel" class="w-full border p-2.5 rounded-lg outline-none focus:ring-2 focus:ring-purple-500" placeholder="Cth: Fiqih" required>
-                                    </div>
-                                    <button type="submit" class="w-full bg-purple-600 text-white rounded-lg p-2.5 font-bold hover:bg-purple-700 mt-2">Simpan Jadwal</button>
-                                </form>
-                            </div>
-                        </div>
-                        <div class="lg:col-span-2">
-                            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-4 flex flex-col sm:flex-row sm:items-center gap-3">
-                                <label class="text-sm font-bold text-gray-700 whitespace-nowrap"><i class="fa-solid fa-filter text-purple-600"></i> Filter Guru:</label>
-                                <select id="filter-jadwal-guru" onchange="window.renderJadwalGuru()" class="w-full sm:w-auto border p-2 rounded-lg text-sm outline-none focus:ring-2 focus:ring-purple-500 bg-white font-medium">
-                                    <option value="">Semua Guru</option>
-                                </select>
-                            </div>
-                            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                                <div class="overflow-x-auto">
-                                    <table class="w-full text-sm text-left">
-                                        <thead class="bg-purple-50 text-xs text-purple-900 font-bold uppercase border-b border-purple-100">
-                                            <tr>
-                                                <th class="px-4 py-3">Guru</th>
-                                                <th class="px-4 py-3">Hari & Waktu</th>
-                                                <th class="px-4 py-3">Kelas & Mapel</th>
-                                                <th class="px-4 py-3 text-right">Aksi</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="table-jadwal-guru" class="divide-y divide-gray-100 bg-white"></tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-
-                <!-- DATA SISWA -->
+                <!-- TAB DATA SISWA -->
                 <div id="tab-siswa" class="tab-content max-w-6xl mx-auto scroll-mt-6">
-                    <div class="mb-8"><h2 class="text-2xl font-bold text-gray-800">Manajemen Siswa</h2></div>
+                    <div class="mb-8"><h2 class="text-2xl font-bold text-gray-800">Data Murid</h2></div>
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div class="lg:col-span-1">
-                            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 transition-all duration-300" id="form-siswa-container">
-                                <h3 class="font-bold mb-4"><i class="fa-solid fa-user-plus text-blue-500 mr-2"></i>Data Siswa</h3>
-                                <form onsubmit="window.simpanSiswa(event)" class="space-y-4">
-                                    <input type="hidden" id="siswa-mode" value="add">
-                                    <input type="hidden" id="siswa-id" value="">
-                                    <div>
-                                        <label class="block text-sm font-medium mb-1">NIS / Barcode</label>
-                                        <div class="flex gap-2">
-                                            <input type="text" id="siswa-nis" class="flex-1 border p-2.5 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" required>
-                                            <button type="button" onclick="window.openScanner('tambah-siswa')" class="w-11 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center border border-blue-200 hover:bg-blue-100 transition-colors"><i class="fa-solid fa-qrcode"></i></button>
-                                        </div>
-                                    </div>
-                                    <div><label class="block text-sm font-medium mb-1">Nama Lengkap</label><input type="text" id="siswa-nama" class="w-full border p-2.5 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" required></div>
-                                    <div><label class="block text-sm font-medium mb-1">Kelas</label><input type="text" id="siswa-kelas" class="w-full border p-2.5 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" required></div>
-                                    <div><label class="block text-sm font-medium mb-1">Wali Murid</label><input type="text" id="siswa-wali" class="w-full border p-2.5 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" placeholder="Opsional"></div>
-                                    
-                                    <div>
-                                        <label class="block text-sm font-medium mb-1">Foto Profil (Opsional)</label>
-                                        <input type="file" id="siswa-foto" accept="image/*" class="hidden" onchange="window.openCropper(event, 'siswa')">
-                                        <button type="button" onclick="document.getElementById('siswa-foto').click()" class="w-full bg-blue-50 text-blue-600 font-bold p-2.5 rounded-lg border border-blue-200 hover:bg-blue-100"><i class="fa-solid fa-camera mr-2"></i>Pilih Foto</button>
-                                        <div id="preview-foto-siswa-container" class="hidden mt-3 flex justify-center">
-                                            <img id="preview-foto-siswa-img" src="" class="w-20 h-20 rounded-full object-cover border-2 border-blue-200 shadow-sm cursor-pointer hover:scale-105 transition-transform" onclick="window.reopenCropper('siswa')" title="Klik untuk mengedit kembali foto">
-                                        </div>
-                                    </div>
-
-                                    <button type="submit" id="btn-submit-siswa" class="w-full bg-blue-600 text-white rounded-lg p-2.5 font-bold hover:bg-blue-700 mt-2 shadow-md">Simpan Data Siswa</button>
-                                    <button type="button" id="btn-cancel-siswa" onclick="window.resetFormSiswa()" class="w-full bg-gray-100 text-gray-700 rounded-lg p-2.5 font-bold hover:bg-gray-200 mt-2 hidden">Batal Edit</button>
-                                </form>
-                            </div>
-                        </div>
-                        <div class="lg:col-span-2">
-                            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                                <div class="overflow-x-auto">
-                                    <table class="w-full text-sm text-left">
-                                        <thead class="bg-gray-100/80 text-xs text-gray-500 uppercase border-b">
-                                            <tr>
-                                                <th class="px-6 py-3">NIS</th>
-                                                <th class="px-6 py-3">Profil Siswa</th>
-                                                <th class="px-6 py-3 text-right">Saldo & Aksi</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="table-siswa" class="divide-y divide-gray-100 bg-white"></tbody>
-                                    </table>
+                        <div class="lg:col-span-1"><div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6"><h3 class="font-bold mb-4"><i class="fa-solid fa-user-plus text-blue-500 mr-2"></i>Tambah Murid</h3><form onsubmit="window.simpanSiswa(event)" class="space-y-4"><input type="hidden" id="siswa-mode" value="add"><input type="hidden" id="siswa-id" value=""><div><label class="block text-sm font-medium mb-1">NIS</label><input type="text" id="siswa-nis" class="w-full border p-2.5 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" required></div><div><label class="block text-sm font-medium mb-1">Nama Siswa</label><input type="text" id="siswa-nama" class="w-full border p-2.5 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" required></div><div><label class="block text-sm font-medium mb-1">Kelas</label><input type="text" id="siswa-kelas" class="w-full border p-2.5 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" required></div><div><label class="block text-sm font-medium mb-1">Wali</label><input type="text" id="siswa-wali" class="w-full border p-2.5 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"></div>
+                        <div class="mt-4">
+                            <label class="block text-sm font-medium mb-2">Foto Profil (Opsional)</label>
+                            <div class="flex items-center gap-4">
+                                <div id="preview-foto-siswa-container" class="hidden w-16 h-16 rounded-full overflow-hidden border-2 border-blue-200">
+                                    <img id="preview-foto-siswa-img" src="" class="w-full h-full object-cover" alt="Preview Foto">
                                 </div>
+                                <button type="button" onclick="window.reopenCropper('siswa')" class="bg-blue-50 text-blue-600 px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-100 border border-blue-200 flex items-center gap-2">
+                                    <i class="fa-solid fa-camera"></i> Ambil/Pilih Foto
+                                </button>
                             </div>
                         </div>
+                        <button type="submit" id="btn-submit-siswa" class="w-full bg-blue-600 text-white rounded-lg p-2.5 font-bold hover:bg-blue-700 mt-2 shadow-md">Simpan Data Siswa</button><button type="button" id="btn-cancel-siswa" onclick="window.resetFormSiswa()" class="w-full bg-gray-100 text-gray-700 rounded-lg p-2.5 font-bold hover:bg-gray-200 mt-2 hidden">Batal</button></form></div></div>
+                        <div class="lg:col-span-2"><div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"><table class="w-full text-sm text-left"><thead class="bg-blue-50 text-xs text-blue-900 font-bold uppercase border-b border-blue-100"><tr><th class="px-6 py-3">NIS</th><th class="px-6 py-3">Nama Siswa</th><th class="px-6 py-3 text-right">Aksi</th></tr></thead><tbody id="table-siswa" class="divide-y divide-gray-100 bg-white"></tbody></table></div></div>
                     </div>
                 </div>
 
-                <!-- ABSENSI SISWA -->
+                <!-- TAB ABSENSI SISWA -->
                 <div id="tab-absen-siswa" class="tab-content max-w-6xl mx-auto scroll-mt-6">
                     <div class="mb-6 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
                         <div>
@@ -821,6 +695,9 @@
                             <p class="text-gray-500 text-sm">Catat kehadiran harian murid berdasarkan kelas.</p>
                         </div>
                         <div class="flex flex-col sm:flex-row gap-3">
+                            <button type="button" onclick="window.openScanner('absen-siswa-tab')" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 border border-blue-200 transition-colors shadow-sm">
+                                <i class="fa-solid fa-qrcode"></i> Scan Kamera
+                            </button>
                             <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border border-gray-200 shadow-sm">
                                 <label class="text-sm font-bold text-gray-700"><i class="fa-solid fa-users-rectangle mr-1 text-blue-600"></i> Kelas:</label>
                                 <select id="filter-kelas-absen" class="outline-none text-sm font-bold text-gray-700 bg-transparent cursor-pointer min-w-[100px]" onchange="window.renderAbsenSiswa()">
