@@ -1350,7 +1350,7 @@
         </main>
     </div>
 
-   <!-- ===== SCRIPT GOOGLE DRIVE API & LOGIKA ===== -->
+    <!-- ===== SCRIPT GOOGLE DRIVE API & LOGIKA ===== -->
     <script>
         // --- KONFIGURASI GOOGLE DRIVE API ---
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxMDK-D9oj9FgYdc_dmFSnCsJxw2qxnWQRX5B6W5ty6dApyDi_0VeL1K_4HrWGB9C7i/exec'
@@ -1369,6 +1369,8 @@
         let html5QrCode = null; let scannerState = 'stopped'; let activeScannerMode = null; let audioCtx = null;
         window.activeFilterTabungan = 'harian'; 
         let syncTimeout = null;
+        let isSyncing = false;
+        let pendingSave = false;
 
         // State Khusus Form Nilai Rapor
         window.nilaiState = {
@@ -1428,6 +1430,17 @@
 
                     // Mulai auto-refresh 30 detik setelah inisialisasi berhasil
                     if (!window.autoRefreshInterval) {
+                        window.autoRefreshData = async () => {
+                            if (isSyncing || pendingSave) return; // Cegah sinkronisasi ganda / tertimpa saat simpan
+                            try {
+                                const response = await fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'GET_ALL' }) });
+                                const result = await response.json();
+                                if (result.success && result.data && !isSyncing && !pendingSave) {
+                                    window.appState = { ...window.appState, ...result.data };
+                                    window.updateAllViews();
+                                }
+                            } catch(e) {}
+                        };
                         window.autoRefreshInterval = setInterval(window.autoRefreshData, 30000);
                     }
                 }
@@ -1435,32 +1448,48 @@
                 loader.classList.replace('flex', 'hidden');
                 window.updateAllViews();
 
+                const performSync = async () => {
+                    isSyncing = true;
+                    pendingSave = false;
+                    try {
+                        const res = await fetch(SCRIPT_URL, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                            body: JSON.stringify({ action: 'SYNC_ALL', payload: window.appState })
+                        });
+                        
+                        const json = await res.json();
+                        if (json.success) {
+                            syncBadge.innerHTML = '<i class="fa-solid fa-check mr-2 text-green-400"></i>Data Tersimpan!';
+                        } else {
+                            throw new Error(json.error);
+                        }
+                    } catch(e) {
+                        console.error("Gagal simpan:", e);
+                        syncBadge.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-2 text-red-400"></i>Menyimpan Ulang...';
+                        pendingSave = true; // Antrekan percobaan ulang jika gagal (timeout dari server)
+                    } finally {
+                        isSyncing = false;
+                        setTimeout(() => { if(!isSyncing) syncBadge.classList.add('opacity-0'); }, 2500);
+                        if (pendingSave) {
+                            setTimeout(window.saveState, 3000); // Coba simpan kembali setelah delay 3 detik
+                        }
+                    }
+                };
+
                 window.saveState = async () => {
                     syncBadge.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Menyimpan ke Drive...';
                     syncBadge.classList.remove('opacity-0');
 
                     if (syncTimeout) clearTimeout(syncTimeout);
                     
-                    syncTimeout = setTimeout(async () => {
-                        try {
-                            const res = await fetch(SCRIPT_URL, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                                body: JSON.stringify({ action: 'SYNC_ALL', payload: window.appState })
-                            });
-                            
-                            const json = await res.json();
-                            if (json.success) {
-                                syncBadge.innerHTML = '<i class="fa-solid fa-check mr-2 text-green-400"></i>Data Tersimpan!';
-                            } else {
-                                throw new Error(json.error);
-                            }
-                        } catch(e) {
-                            console.error("Gagal simpan:", e);
-                            syncBadge.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-2 text-red-400"></i>Gagal Simpan!';
+                    syncTimeout = setTimeout(() => {
+                        if (isSyncing) {
+                            pendingSave = true; // Jika sedang dalam proses simpan, masukkan ke antrean
+                            return;
                         }
-                        setTimeout(() => syncBadge.classList.add('opacity-0'), 2500);
-                    }, 1000); 
+                        performSync();
+                    }, 1500); // Naikkan waktu tunggu debounce dari 1s menjadi 1.5s
                 };
                 
             } catch (error) {
@@ -2114,10 +2143,22 @@
             if(siswa) {
                 if(!window.appState.nilai) window.appState.nilai = [];
                 const existingData = window.appState.nilai.find(n => String(n.id_siswa) === String(idSiswa) && n.subjects);
+                
+                // MENGAMBIL DAFTAR MAPEL TERBARU UNTUK KELAS INI
+                const mapelSiswa = window.appState.mapel.filter(m => String(m.kelas || m.kode).toLowerCase() === String(siswa.kelas).toLowerCase() || !(m.kelas || m.kode));
+                
                 if (existingData) {
-                    window.nilaiState.subjects = existingData.subjects; window.nilaiState.perilaku = existingData.perilaku || { kerajinan: 'A', kedisiplinan: 'A', kebersihan: 'A' }; window.nilaiState.kehadiran = existingData.kehadiran || { sakit: 0, izin: 0, alpa: 0 };
+                    // SINKRONISASI MAPEL: Gabungkan nilai lama dengan daftar mapel baru
+                    const mergedSubjects = mapelSiswa.map(m => {
+                        const existingSub = existingData.subjects.find(sub => String(sub.id) === String(m.id) || String(sub.mapel).toLowerCase() === String(m.nama).toLowerCase());
+                        if (existingSub) return { ...existingSub, id: m.id, mapel: m.nama };
+                        return { id: m.id, mapel: m.nama, input1Harian: '', input1Imda: '', input1Nilai: 0, input2Harian: '', input2Imda: '', input2Nilai: 0, input3Harian: '', input3Imda: '', input3Nilai: 0 };
+                    });
+                    
+                    window.nilaiState.subjects = mergedSubjects;
+                    window.nilaiState.perilaku = existingData.perilaku || { kerajinan: 'A', kedisiplinan: 'A', kebersihan: 'A' }; 
+                    window.nilaiState.kehadiran = existingData.kehadiran || { sakit: 0, izin: 0, alpa: 0 };
                 } else {
-                    const mapelSiswa = window.appState.mapel.filter(m => String(m.kelas || m.kode).toLowerCase() === String(siswa.kelas).toLowerCase() || !(m.kelas || m.kode));
                     window.nilaiState.subjects = mapelSiswa.map(m => ({ id: m.id, mapel: m.nama, input1Harian: '', input1Imda: '', input1Nilai: 0, input2Harian: '', input2Imda: '', input2Nilai: 0, input3Harian: '', input3Imda: '', input3Nilai: 0 }));
                     window.nilaiState.perilaku = { kerajinan: 'A', kedisiplinan: 'A', kebersihan: 'A' }; window.nilaiState.kehadiran = { sakit: 0, izin: 0, alpa: 0 };
                 }
@@ -2198,7 +2239,19 @@
             }
             
             const nilaiData = st.nilai.find(n => String(n.id_siswa) === String(ns.activeStudentId));
-            const academicSubjects = nilaiData ? nilaiData.subjects : [];
+            const mapelSiswa = st.mapel.filter(m => String(m.kelas || m.kode).toLowerCase() === String(activeStudent.kelas).toLowerCase() || !(m.kelas || m.kode));
+            
+            let academicSubjects = [];
+            if (nilaiData && nilaiData.subjects) {
+                academicSubjects = mapelSiswa.map(m => {
+                    const existingSub = nilaiData.subjects.find(sub => String(sub.id) === String(m.id) || String(sub.mapel).toLowerCase() === String(m.nama).toLowerCase());
+                    if (existingSub) return { ...existingSub, id: m.id, mapel: m.nama };
+                    return { id: m.id, mapel: m.nama, input1Harian: '', input1Imda: '', input1Nilai: 0, input2Harian: '', input2Imda: '', input2Nilai: 0, input3Harian: '', input3Imda: '', input3Nilai: 0 };
+                });
+            } else {
+                academicSubjects = mapelSiswa.map(m => ({ id: m.id, mapel: m.nama, input1Harian: '', input1Imda: '', input1Nilai: 0, input2Harian: '', input2Imda: '', input2Nilai: 0, input3Harian: '', input3Imda: '', input3Nilai: 0 }));
+            }
+            
             const perilakuData = nilaiData ? nilaiData.perilaku : { kerajinan: '-', kedisiplinan: '-', kebersihan: '-' };
             const kehadiranData = nilaiData ? nilaiData.kehadiran : { sakit: 0, izin: 0, alpa: 0 };
             const printImda = ns.printImdaMenu;
